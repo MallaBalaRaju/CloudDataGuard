@@ -1,0 +1,72 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from backend.app.database import client
+from backend.app.routes.records import router as records_router
+
+
+app = FastAPI(
+    title="CloudDataGuard",
+    description="Cloud-Based Data Redundancy Removal System",
+    version="1.0.0"
+)
+
+
+# ========================================
+# CORS Configuration
+# ========================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "null"
+    ],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# ========================================
+# Home
+# ========================================
+
+@app.get("/")
+def home():
+    return {
+        "message": "CloudDataGuard API is running",
+        "status": "success"
+    }
+
+
+# ========================================
+# Database Status
+# ========================================
+
+@app.get("/database-status")
+def database_status():
+
+    try:
+        client.admin.command("ping")
+
+        return {
+            "database": "MongoDB",
+            "status": "connected"
+        }
+
+    except Exception as e:
+
+        return {
+            "database": "MongoDB",
+            "status": "connection failed",
+            "error": str(e)
+        }
+
+
+# ========================================
+# Records Router
+# ========================================
+
+app.include_router(records_router)

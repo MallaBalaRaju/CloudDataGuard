@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CloudDataGuard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div>
+            <h1>CloudDataGuard</h1>
+            <p>Cloud-Based Data Redundancy Removal System</p>
+        </div>
+
+        <div id="databaseStatus" class="status disconnected">
+            Checking database...
+        </div>
+    </header>
+
+
+    <!-- Main Container -->
+    <main class="container">
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <h3>Total Records</h3>
+                <p id="totalRecords">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Verified Records</h3>
+                <p id="verifiedRecords">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Duplicates Detected</h3>
+                <p id="duplicateRecords">0</p>
+            </div>
+
+        </section>
+
+
+        <!-- Add Record -->
+        <section class="card">
+
+            <div class="section-header">
+                <div>
+                    <h2>Add New Record</h2>
+                    <p>Submit data for validation and redundancy checking.</p>
+                </div>
+            </div>
+
+            <form id="recordForm">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="Enter name"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="Enter email"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input
+                            type="text"
+                            id="phone"
+                            placeholder="Enter phone number"
+                            minlength="10"
+                            maxlength="15"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input
+                            type="text"
+                            id="category"
+                            placeholder="Example: Student"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group full-width">
+                        <label for="data">Data</label>
+                        <textarea
+                            id="data"
+                            placeholder="Enter the data to be stored..."
+                            required
+                        ></textarea>
+                    </div>
+
+                </div>
+
+
+                <button type="submit" class="primary-btn">
+                    Add & Verify Record
+                </button>
+
+            </form>
+
+
+            <div id="message" class="message"></div>
+
+        </section>
+
+
+        <!-- Records -->
+        <section class="card">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Stored Records</h2>
+                    <p>Verified records currently stored in MongoDB Atlas.</p>
+                </div>
+
+                <button
+                    id="refreshButton"
+                    class="secondary-btn"
+                    onclick="loadDashboard()"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Category</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="recordsTableBody">
+
+                        <tr>
+                            <td colspan="8" class="empty">
+                                Loading records...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>CloudDataGuard &copy; 2026</p>
+        <p>FastAPI • MongoDB Atlas • HTML • CSS • JavaScript</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>

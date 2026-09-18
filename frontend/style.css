@@ -1,0 +1,367 @@
+/* ================================
+   CloudDataGuard - Main Styling
+   ================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+    min-height: 100vh;
+}
+
+
+/* ================================
+   Header
+   ================================ */
+
+.header {
+    background: #172554;
+    color: white;
+    padding: 24px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.header h1 {
+    font-size: 30px;
+    margin-bottom: 6px;
+}
+
+.header p {
+    color: #dbeafe;
+    font-size: 15px;
+}
+
+
+/* ================================
+   Database Status
+   ================================ */
+
+.status {
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.status.connected {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.disconnected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* ================================
+   Main Container
+   ================================ */
+
+.container {
+    width: 88%;
+    max-width: 1400px;
+    margin: 30px auto;
+}
+
+
+/* ================================
+   Statistics Cards
+   ================================ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid #2563eb;
+}
+
+.stat-card h3 {
+    font-size: 15px;
+    color: #64748b;
+    margin-bottom: 12px;
+}
+
+.stat-card p {
+    font-size: 32px;
+    font-weight: bold;
+    color: #172554;
+}
+
+
+/* ================================
+   Cards
+   ================================ */
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.section-header h2 {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: #172554;
+}
+
+.section-header p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* ================================
+   Form
+   ================================ */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 7px;
+    color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+
+/* ================================
+   Buttons
+   ================================ */
+
+.primary-btn,
+.secondary-btn,
+.delete-btn {
+    border: none;
+    border-radius: 7px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.primary-btn {
+    margin-top: 20px;
+    background: #2563eb;
+    color: white;
+}
+
+.primary-btn:hover {
+    background: #1d4ed8;
+}
+
+.secondary-btn {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.secondary-btn:hover {
+    background: #cbd5e1;
+}
+
+.delete-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 8px 12px;
+}
+
+.delete-btn:hover {
+    background: #fecaca;
+}
+
+
+/* ================================
+   Messages
+   ================================ */
+
+.message {
+    display: none;
+    margin-top: 18px;
+    padding: 12px 15px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.message.success {
+    display: block;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.message.error {
+    display: block;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* ================================
+   Table
+   ================================ */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+thead {
+    background: #f1f5f9;
+}
+
+th,
+td {
+    padding: 13px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 13px;
+}
+
+th {
+    color: #475569;
+    font-weight: bold;
+}
+
+td {
+    color: #334155;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 12px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #64748b;
+}
+
+
+/* ================================
+   Footer
+   ================================ */
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+footer p {
+    margin: 4px;
+}
+
+
+/* ================================
+   Responsive Design
+   ================================ */
+
+@media (max-width: 800px) {
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: auto;
+    }
+
+    .container {
+        width: 94%;
+    }
+
+    .card {
+        padding: 20px;
+    }
+}
