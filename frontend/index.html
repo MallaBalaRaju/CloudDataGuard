@@ -121,7 +121,7 @@
 
 
                 <button type="submit" class="primary-btn">
-                    Add & Verify Record
+                    Add &amp; Verify Record
                 </button>
 
             </form>
@@ -166,7 +166,7 @@
                             <th>Data</th>
                             <th>Status</th>
                             <th>Created</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
 
@@ -189,10 +189,93 @@
     </main>
 
 
+    <!-- Edit Record Modal -->
+    <div id="editModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+
+        <div class="modal">
+
+            <div class="modal-header">
+                <h2 id="editModalTitle">Edit Record</h2>
+                <button class="modal-close-btn" onclick="closeEditModal()" aria-label="Close">&times;</button>
+            </div>
+
+            <form id="editForm">
+
+                <input type="hidden" id="editRecordId">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="editName">Name</label>
+                        <input
+                            type="text"
+                            id="editName"
+                            placeholder="Enter name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input
+                            type="email"
+                            id="editEmail"
+                            placeholder="Enter email"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPhone">Phone</label>
+                        <input
+                            type="text"
+                            id="editPhone"
+                            placeholder="Enter phone number"
+                            minlength="10"
+                            maxlength="15"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editCategory">Category</label>
+                        <input
+                            type="text"
+                            id="editCategory"
+                            placeholder="Example: Student"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="editData">Data</label>
+                        <textarea
+                            id="editData"
+                            placeholder="Enter the data to be stored..."
+                            required
+                        ></textarea>
+                    </div>
+
+                </div>
+
+                <div id="editMessage" class="message"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="secondary-btn" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="primary-btn" id="editSubmitBtn">Save Changes</button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
     <!-- Footer -->
     <footer>
         <p>CloudDataGuard &copy; 2026</p>
-        <p>FastAPI • MongoDB Atlas • HTML • CSS • JavaScript</p>
+        <p>FastAPI &bull; MongoDB Atlas &bull; HTML &bull; CSS &bull; JavaScript</p>
     </footer>
 
 

@@ -8,7 +8,7 @@ from backend.app.database import (
     records_collection,
     duplicate_logs_collection
 )
-from backend.app.schemas import RecordCreate
+from backend.app.schemas import RecordCreate, RecordUpdate
 
 router = APIRouter(
     prefix="/records",
@@ -17,7 +17,7 @@ router = APIRouter(
 
 
 # -----------------------------
-# ADD RECORD
+# ADD RECORD  (Create)
 # -----------------------------
 @router.post("/add")
 def add_record(record: RecordCreate):
@@ -84,7 +84,7 @@ def add_record(record: RecordCreate):
 
 
 # -----------------------------
-# GET ALL RECORDS
+# GET ALL RECORDS  (Read All)
 # -----------------------------
 @router.get("/")
 def get_records():
@@ -127,7 +127,139 @@ def get_statistics():
 
 
 # -----------------------------
-# DELETE RECORD
+# GET SINGLE RECORD  (Read One)
+# -----------------------------
+@router.get("/{record_id}")
+def get_record(record_id: str):
+
+    try:
+        object_id = ObjectId(record_id)
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid record ID"
+        )
+
+    record = records_collection.find_one({"_id": object_id})
+
+    if not record:
+        raise HTTPException(
+            status_code=404,
+            detail="Record not found"
+        )
+
+    return {
+        "id": str(record["_id"]),
+        "name": record["name"],
+        "email": record["email"],
+        "phone": record["phone"],
+        "category": record["category"],
+        "data": record["data"],
+        "status": record["status"],
+        "created_at": record["created_at"].isoformat()
+    }
+
+
+# -----------------------------
+# UPDATE RECORD  (Update)
+# -----------------------------
+@router.put("/{record_id}")
+def update_record(record_id: str, updates: RecordUpdate):
+
+    try:
+        object_id = ObjectId(record_id)
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid record ID"
+        )
+
+    # Build update dict from only the provided fields
+    update_data = {}
+
+    if updates.name is not None:
+        update_data["name"] = updates.name.strip()
+
+    if updates.email is not None:
+        update_data["email"] = str(updates.email).lower().strip()
+
+    if updates.phone is not None:
+        update_data["phone"] = updates.phone.strip()
+
+    if updates.category is not None:
+        update_data["category"] = updates.category.strip()
+
+    if updates.data is not None:
+        update_data["data"] = updates.data.strip()
+
+    if not update_data:
+        raise HTTPException(
+            status_code=400,
+            detail="No fields provided to update"
+        )
+
+    update_data["updated_at"] = datetime.now(timezone.utc)
+
+    # Check for conflicts on email / phone (excluding current record)
+    conflict_filters = []
+
+    if "email" in update_data:
+        conflict_filters.append({"email": update_data["email"]})
+
+    if "phone" in update_data:
+        conflict_filters.append({"phone": update_data["phone"]})
+
+    if conflict_filters:
+        conflict = records_collection.find_one(
+            {
+                "_id": {"$ne": object_id},
+                "$or": conflict_filters
+            }
+        )
+
+        if conflict:
+            duplicate_fields = []
+
+            if conflict.get("email") == update_data.get("email"):
+                duplicate_fields.append("email")
+
+            if conflict.get("phone") == update_data.get("phone"):
+                duplicate_fields.append("phone")
+
+            return {
+                "status": "rejected",
+                "message": "Update rejected — duplicate data detected.",
+                "duplicate_fields": duplicate_fields
+            }
+
+    try:
+        result = records_collection.update_one(
+            {"_id": object_id},
+            {"$set": update_data}
+        )
+
+    except DuplicateKeyError:
+        return {
+            "status": "rejected",
+            "message": "Update rejected — duplicate data detected."
+        }
+
+    if result.matched_count == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Record not found"
+        )
+
+    return {
+        "status": "success",
+        "message": "Record updated successfully."
+    }
+
+
+# -----------------------------
+# DELETE RECORD  (Delete)
 # -----------------------------
 @router.delete("/{record_id}")
 def delete_record(record_id: str):

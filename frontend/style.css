@@ -195,7 +195,8 @@ body {
 
 .primary-btn,
 .secondary-btn,
-.delete-btn {
+.delete-btn,
+.edit-btn {
     border: none;
     border-radius: 7px;
     padding: 11px 18px;
@@ -232,6 +233,23 @@ body {
 
 .delete-btn:hover {
     background: #fecaca;
+}
+
+.edit-btn {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 8px 12px;
+    margin-right: 6px;
+}
+
+.edit-btn:hover {
+    background: #bfdbfe;
+}
+
+.action-cell {
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 
@@ -319,6 +337,88 @@ tbody tr:hover {
 
 
 /* ================================
+   Edit Modal
+   ================================ */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    border-radius: 14px;
+    padding: 32px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+    animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    color: #172554;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #64748b;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    transition: color 0.2s;
+}
+
+.modal-close-btn:hover {
+    color: #1f2937;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-actions .secondary-btn,
+.modal-actions .primary-btn {
+    margin-top: 0;
+}
+
+
+/* ================================
    Footer
    ================================ */
 
@@ -363,5 +463,9 @@ footer p {
 
     .card {
         padding: 20px;
+    }
+
+    .modal {
+        padding: 22px;
     }
 }

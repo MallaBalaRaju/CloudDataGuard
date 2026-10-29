@@ -14,10 +14,31 @@ document.addEventListener("DOMContentLoaded", () => {
     loadDashboard();
 
     const form = document.getElementById("recordForm");
-
     if (form) {
         form.addEventListener("submit", addRecord);
     }
+
+    const editForm = document.getElementById("editForm");
+    if (editForm) {
+        editForm.addEventListener("submit", submitEditRecord);
+    }
+
+    // Close modal when clicking the backdrop
+    const modalOverlay = document.getElementById("editModal");
+    if (modalOverlay) {
+        modalOverlay.addEventListener("click", (e) => {
+            if (e.target === modalOverlay) {
+                closeEditModal();
+            }
+        });
+    }
+
+    // Close modal with Escape key
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeEditModal();
+        }
+    });
 });
 
 
@@ -105,7 +126,7 @@ async function loadStatistics() {
 
 
 // ========================================
-// Load Records
+// Load Records  (Read All)
 // ========================================
 
 async function loadRecords() {
@@ -162,12 +183,20 @@ async function loadRecords() {
                 </td>
 
                 <td>
-                    <button
-                        class="delete-btn"
-                        onclick="deleteRecord('${record.id}')"
-                    >
-                        Delete
-                    </button>
+                    <div class="action-cell">
+                        <button
+                            class="edit-btn"
+                            onclick="openEditModal('${record.id}')"
+                        >
+                            Edit
+                        </button>
+                        <button
+                            class="delete-btn"
+                            onclick="deleteRecord('${record.id}')"
+                        >
+                            Delete
+                        </button>
+                    </div>
                 </td>
             `;
 
@@ -190,7 +219,7 @@ async function loadRecords() {
 
 
 // ========================================
-// Add Record
+// Add Record  (Create)
 // ========================================
 
 async function addRecord(event) {
@@ -328,7 +357,169 @@ async function addRecord(event) {
 
 
 // ========================================
-// Delete Record
+// Open Edit Modal  (Read One → pre-fill)
+// ========================================
+
+async function openEditModal(recordId) {
+
+    const modal = document.getElementById("editModal");
+    const editMessage = document.getElementById("editMessage");
+
+    // Clear previous state
+    editMessage.className = "message";
+    editMessage.textContent = "";
+
+    try {
+
+        const response = await fetch(
+            `${API_BASE_URL}/records/${recordId}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch record");
+        }
+
+        const record = await response.json();
+
+        // Pre-fill the edit form
+        document.getElementById("editRecordId").value  = record.id;
+        document.getElementById("editName").value      = record.name;
+        document.getElementById("editEmail").value     = record.email;
+        document.getElementById("editPhone").value     = record.phone;
+        document.getElementById("editCategory").value  = record.category;
+        document.getElementById("editData").value      = record.data;
+
+        // Show modal
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+
+        // Focus the first field
+        document.getElementById("editName").focus();
+
+    } catch (error) {
+
+        console.error("Open edit modal error:", error);
+        showMessage("Unable to load record for editing.", "error");
+    }
+}
+
+
+// ========================================
+// Close Edit Modal
+// ========================================
+
+function closeEditModal() {
+    const modal = document.getElementById("editModal");
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+}
+
+
+// ========================================
+// Submit Edit Record  (Update)
+// ========================================
+
+async function submitEditRecord(event) {
+
+    event.preventDefault();
+
+    const recordId =
+        document.getElementById("editRecordId").value;
+
+    const editMessage =
+        document.getElementById("editMessage");
+
+    const submitButton =
+        document.getElementById("editSubmitBtn");
+
+    const updates = {
+        name:     document.getElementById("editName").value.trim(),
+        email:    document.getElementById("editEmail").value.trim(),
+        phone:    document.getElementById("editPhone").value.trim(),
+        category: document.getElementById("editCategory").value.trim(),
+        data:     document.getElementById("editData").value.trim()
+    };
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Saving...";
+
+    try {
+
+        const response = await fetch(
+            `${API_BASE_URL}/records/${recordId}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(updates)
+            }
+        );
+
+        const result = await response.json();
+
+        if (response.ok) {
+
+            if (result.status === "success") {
+
+                closeEditModal();
+                showMessage(result.message, "success");
+                await loadDashboard();
+
+            } else if (result.status === "rejected") {
+
+                let msg = result.message;
+
+                if (
+                    result.duplicate_fields &&
+                    result.duplicate_fields.length > 0
+                ) {
+                    msg += " Duplicate field(s): " +
+                        result.duplicate_fields.join(", ");
+                }
+
+                showEditMessage(msg, "error");
+            }
+
+        } else {
+
+            let errorMessage = "Unable to update record.";
+
+            if (result.detail) {
+
+                if (Array.isArray(result.detail)) {
+                    errorMessage =
+                        result.detail
+                            .map(e => e.msg)
+                            .join(", ");
+                } else {
+                    errorMessage = result.detail;
+                }
+            }
+
+            showEditMessage(errorMessage, "error");
+        }
+
+    } catch (error) {
+
+        console.error("Update record error:", error);
+        showEditMessage(
+            "Unable to connect to CloudDataGuard API.",
+            "error"
+        );
+
+    } finally {
+
+        submitButton.disabled = false;
+        submitButton.textContent = "Save Changes";
+    }
+}
+
+
+// ========================================
+// Delete Record  (Delete)
 // ========================================
 
 async function deleteRecord(recordId) {
@@ -387,7 +578,7 @@ async function deleteRecord(recordId) {
 
 
 // ========================================
-// Display Message
+// Display Message (main form area)
 // ========================================
 
 function showMessage(message, type) {
@@ -408,6 +599,25 @@ function showMessage(message, type) {
 
         messageElement.textContent = "";
 
+    }, 5000);
+}
+
+
+// ========================================
+// Display Message (inside edit modal)
+// ========================================
+
+function showEditMessage(message, type) {
+
+    const messageElement =
+        document.getElementById("editMessage");
+
+    messageElement.textContent = message;
+    messageElement.className = `message ${type}`;
+
+    setTimeout(() => {
+        messageElement.className = "message";
+        messageElement.textContent = "";
     }, 5000);
 }
 
