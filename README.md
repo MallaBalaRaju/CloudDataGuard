@@ -1,789 +1,233 @@
-# CloudDataGuard
+# CloudDataGuard — MongoDB-Based Data Redundancy Removal System
 
-## Cloud-Based Data Redundancy Removal System
-
-CloudDataGuard is a cloud-connected data validation and redundancy removal system developed as part of the **CodeAlpha Cloud Computing Internship**.
-
-The system validates incoming records, checks them against existing records stored in **MongoDB Atlas**, prevents duplicate entries, and maintains a log of detected duplicate attempts.
+**Project Category:** Intelligent NoSQL Databases Mini-Project  
+**Tech Stack:** Python 3 (FastAPI, PyMongo, Pydantic) &bull; MongoDB (BSON, `$jsonSchema`, Indexes, Aggregation, `explain()`) &bull; Cryptographic Hashing (SHA-256) &bull; Modern Responsive Web Dashboard  
 
 ---
 
-## Project Objective
+## 📌 Executive Summary
 
-The main objective of CloudDataGuard is to reduce redundant data in a cloud database by:
+**CloudDataGuard** is an intelligent cloud-connected data redundancy removal and storage optimization system built using **MongoDB** and **FastAPI**. 
 
-- Validating incoming records
-- Checking new records against existing data
-- Detecting duplicate records
-- Preventing redundant records from being stored
-- Logging duplicate attempts
-- Storing only unique and verified records
-- Providing statistics about stored and duplicate records
-- Providing a simple web dashboard for users
+In cloud databases, redundant records and duplicate file contents lead to unnecessary storage inflation, slow query response times, and increased cloud hosting costs. CloudDataGuard solves this by combining **NoSQL Document Modeling**, **B-Tree Unique Index Constraints**, and **SHA-256 Cryptographic Checksums** to intercept and prevent duplicate data ingestion before it reaches permanent storage.
 
 ---
 
-## Features
+## 🎯 Syllabus Alignment (Intelligent NoSQL Databases)
 
-### 1. Data Validation
+| Syllabus Requirement | Implementation in CloudDataGuard | Verification Method |
+|---|---|---|
+| **1. NoSQL Concepts** | Document-oriented architecture with decoupled collections (`records`, `duplicate_logs`). | Reviewed collections & BSON models in MongoDB |
+| **2. CRUD Operations** | Complete Create, Read (All & By ID), Update, and Delete operations connected to real MongoDB actions. | Automated test suite (`pytest`) & live UI operations |
+| **3. BSON Data Types** | Uses `ObjectId`, `String`, `Int64` (`size_bytes`), `ISODate` (`created_at`, `updated_at`), and Embedded Subdocuments (`metadata`). | Inspected via `/records/{id}` and View Details modal |
+| **4. Schema Validation** | Dual-layer validation: Pydantic schemas in FastAPI + MongoDB engine-level `$jsonSchema` collection validator. | Validated against invalid payloads (HTTP 422 & MongoDB validator) |
+| **5. Redundancy Removal** | Cryptographic SHA-256 content hashing to detect identical payloads regardless of identity; logs intercepted duplicates and tracks storage bytes saved. | Tested via identical data payload submission |
+| **6. Database Indexing** | Unique indexes on `email`, `phone`, `content_hash`; search indexes on `category`, `created_at`. | Inspected via `/records/indexes` |
+| **7. Query Execution Plan** | Demonstrates `explain("executionStats")` to prove index optimization (`IXSCAN` vs `COLLSCAN`). | Interactive explain runner on UI & `/records/explain` |
+| **8. Aggregation Framework** | Multi-stage aggregation pipelines using `$group`, `$sum`, `$avg`, `$max`, `$sort` for analytics and storage savings. | Displayed on dashboard cards & `/records/stats` |
+| **9. Python Integration** | FastAPI integrated with official PyMongo driver, environment variable management, and error handling. | Backend API execution & automated test suite |
 
-Incoming records are validated using **Pydantic** before they are processed.
+---
 
-The system validates:
+## 🗄️ Database Architecture & Document Design
 
-- Name
-- Email
-- Phone number
-- Category
-- Data
+### Collections
+1. **`records`**: Stores verified, unique, deduplicated documents.
+2. **`duplicate_logs`**: Audit trail of intercepted redundant submissions, tracking saved storage bytes.
 
-Invalid input is rejected before database insertion.
-
-### 2. Duplicate Detection
-
-CloudDataGuard checks incoming records against existing records using:
-
-- Email
-- Phone number
-
-If an existing record contains the same email or phone number, the new record is classified as redundant.
-
-### 3. Duplicate Prevention
-
-Duplicate records are not inserted into the main records collection.
-
-The system returns a rejection response instead.
-
-Example:
-
+### Document Schema Example (`records` collection)
 ```json
 {
-    "status": "rejected",
-    "message": "Redundant data detected. Record was not added.",
-    "duplicate_fields": [
-        "email",
-        "phone"
-    ]
-}
-```
-
-### 4. Duplicate Logging
-
-Detected duplicate attempts are stored separately in the MongoDB `duplicate_logs` collection.
-
-This allows the system to maintain a record of redundancy detection events.
-
-### 5. Verified Record Storage
-
-Unique records are stored in MongoDB Atlas with:
-
-```text
-status: verified
-```
-
-### 6. Statistics
-
-The application provides statistics including:
-
-- Total records
-- Verified records
-- Duplicate attempts detected
-
-### 7. Web Dashboard
-
-The frontend provides:
-
-- Database connection status
-- Statistics dashboard
-- Add & Verify Record form
-- Stored records table
-- Delete functionality
-- Refresh functionality
-- Duplicate detection messages
-
----
-
-## System Architecture
-
-```text
-                    ┌─────────────────────┐
-                    │     Web Browser     │
-                    │   HTML / CSS / JS   │
-                    └──────────┬──────────┘
-                               │
-                               │ HTTP Requests
-                               ▼
-                    ┌─────────────────────┐
-                    │      FastAPI        │
-                    │      Backend        │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   Data Validation   │
-                    │ & Duplicate Check   │
-                    └──────────┬──────────┘
-                               │
-                         Duplicate?
-                         /        \
-                       Yes         No
-                       /            \
-                      ▼              ▼
-             ┌──────────────┐ ┌──────────────┐
-             │ Duplicate    │ │ Verified     │
-             │ Log          │ │ Record       │
-             └──────┬───────┘ └──────┬───────┘
-                    │                │
-                    └───────┬────────┘
-                            ▼
-                    ┌─────────────────────┐
-                    │    MongoDB Atlas    │
-                    │    Cloud Database   │
-                    └─────────────────────┘
-```
-
----
-
-## Technology Stack
-
-| Technology | Purpose |
-|---|---|
-| Python | Backend programming |
-| FastAPI | REST API framework |
-| Pydantic | Data validation |
-| PyMongo | MongoDB database connectivity |
-| MongoDB Atlas | Cloud database |
-| HTML | Frontend structure |
-| CSS | Frontend styling |
-| JavaScript | Frontend functionality |
-| Swagger UI | API testing |
-| Git | Version control |
-| GitHub | Source code repository |
-
----
-
-## Project Structure
-
-```text
-CloudDataGuard/
-│
-├── backend/
-│   └── app/
-│       ├── __init__.py
-│       ├── database.py
-│       ├── main.py
-│       ├── schemas.py
-│       │
-│       └── routes/
-│           ├── __init__.py
-│           └── records.py
-│
-├── frontend/
-│   ├── index.html
-│   ├── style.css
-│   └── script.js
-│
-├── .env
-├── .gitignore
-├── requirements.txt
-└── README.md
-```
-
-> **Note:** The `.env` file contains private database credentials and must not be uploaded to GitHub.
-
----
-
-# API Documentation
-
-The project provides REST API endpoints using FastAPI.
-
-## 1. Home
-
-```text
-GET /
-```
-
-Checks whether the CloudDataGuard API is running.
-
-Example response:
-
-```json
-{
-    "message": "CloudDataGuard API is running",
-    "status": "success"
+  "_id": ObjectId("6ae376e9005ddbd5199f80dd"),
+  "name": "Alice Smith",
+  "email": "alice@example.com",
+  "phone": "9876543210",
+  "category": "Student",
+  "data": "Sample academic payload text...",
+  "content_hash": "ca455d6f99a39a68d68c08b17a2db495f219cb7159cb16a04d6347d8da2539f9",
+  "size_bytes": 33,
+  "status": "verified",
+  "metadata": {
+    "encoding": "utf-8",
+    "content_type": "text/plain"
+  },
+  "created_at": ISODate("2026-10-29T16:40:09.975Z"),
+  "updated_at": null
 }
 ```
 
 ---
 
-## 2. Database Status
+## ⚡ MongoDB Indexing & Query Explain
 
-```text
-GET /database-status
-```
+CloudDataGuard configures 6 strategic indexes:
+1. `_id_`: Default MongoDB primary key clustered index.
+2. `email_1` (`unique: true`): Prevents duplicate user identity records.
+3. `phone_1` (`unique: true`): Enforces unique phone constraints.
+4. `content_hash_1` (`unique: true`): Enforces cryptographic data redundancy removal at the database engine level.
+5. `category_1`: Accelerates category filtering and aggregation pipelines.
+6. `created_at_1`: Optimizes reverse-chronological sorting and pagination.
 
-Checks the connection between FastAPI and MongoDB Atlas.
-
-Example response:
-
-```json
-{
-    "database": "MongoDB",
-    "status": "connected"
-}
-```
+### Query Performance Comparison (`explain("executionStats")`)
+- **Indexed Field (`email` / `content_hash`)**: Stage = `IXSCAN` or `EXPRESS_IXSCAN`, `totalKeysExamined = 1`, `totalDocsExamined = 1`, execution time $\approx 0\text{ ms}$.
+- **Non-Indexed Field (`name`)**: Stage = `COLLSCAN` (Full Collection Scan), scans all documents in collection.
 
 ---
 
-## 3. Add Record
+## 📊 Aggregation Framework Pipelines
 
-```text
-POST /records/add
-```
+CloudDataGuard demonstrates two production aggregation pipelines:
 
-Validates the submitted record and checks it for redundancy.
-
-A unique record is stored in MongoDB Atlas.
-
-A duplicate record is rejected and logged.
-
-Example request:
-
-```json
-{
-    "name": "Aman Sharma",
-    "email": "aman@example.com",
-    "phone": "9876543210",
-    "category": "Student",
-    "data": "CloudDataGuard test record"
-}
-```
-
-Example successful response:
-
-```json
-{
-    "status": "success",
-    "message": "Unique and verified record added successfully.",
-    "record_id": "..."
-}
-```
-
-Example duplicate response:
-
-```json
-{
-    "status": "rejected",
-    "message": "Redundant data detected. Record was not added.",
-    "duplicate_fields": [
-        "email",
-        "phone"
-    ]
-}
-```
-
----
-
-## 4. Get Records
-
-```text
-GET /records/
-```
-
-Returns the verified records currently stored in MongoDB Atlas.
-
-Example response:
-
-```json
-{
-    "total": 1,
-    "records": [
-        {
-            "id": "...",
-            "name": "Aman Sharma",
-            "email": "aman@example.com",
-            "phone": "9876543210",
-            "category": "Student",
-            "data": "CloudDataGuard test record",
-            "status": "verified",
-            "created_at": "..."
+### Pipeline 1: Categorical Breakdown & Storage Volumes
+```python
+[
+    {
+        "$group": {
+            "_id": "$category",
+            "count": {"$sum": 1},
+            "total_bytes": {"$sum": "$size_bytes"},
+            "avg_bytes": {"$avg": "$size_bytes"},
+            "latest_record": {"$max": "$created_at"}
         }
-    ]
-}
+    },
+    {"$sort": {"count": -1}}
+]
 ```
+
+### Pipeline 2: Cloud Storage Savings & Deduplication Ratio
+- **Total Stored Bytes**: Calculated via `$sum` of `size_bytes` on `records`.
+- **Total Bytes Saved**: Calculated via `$sum` of `bytes_saved` on `duplicate_logs`.
+- **Deduplication Ratio**:
+$$\text{Deduplication Ratio (\%)} = \frac{\text{Duplicates Blocked}}{\text{Total Ingestion Attempts}} \times 100$$
 
 ---
 
-## 5. Statistics
+## 🚀 API Endpoints Reference
 
-```text
-GET /records/stats
-```
-
-Returns database statistics.
-
-Example:
-
-```json
-{
-    "total_records": 1,
-    "verified_records": 1,
-    "duplicates_detected": 1
-}
-```
+| Method | Endpoint | Description | Status Codes |
+|---|---|---|---|
+| `GET` | `/` | API Healthcheck & root information | 200 |
+| `GET` | `/database-status` | Checks real-time MongoDB ping | 200, 500 |
+| `POST` | `/records` (or `/records/add`) | **Create**: Adds unique record with SHA-256 hash | 200 (Success/Rejected), 422 |
+| `GET` | `/records` | **Read All**: Retrieves records with search & pagination | 200 |
+| `GET` | `/records/{id}` | **Read One**: Retrieves single document by ObjectId | 200, 400, 404 |
+| `PUT` | `/records/{id}` | **Update**: Updates document fields & recalculates hash | 200, 400, 404 |
+| `DELETE` | `/records/{id}` | **Delete**: Permanently removes document from MongoDB | 200, 400, 404 |
+| `GET` | `/records/stats` (or `/stats`) | **Aggregation**: Returns category stats & storage savings | 200 |
+| `GET` | `/records/indexes` | **Indexing**: Lists all active indexes on collections | 200 |
+| `GET` | `/records/explain` | **Explain**: Demonstrates query execution plan | 200, 500 |
+| `GET` | `/records/logs/duplicates` | **Audit**: Retrieves duplicate rejection logs | 200 |
 
 ---
 
-## 6. Delete Record
+## 🛠️ Installation & Setup Instructions
 
-```text
-DELETE /records/{record_id}
-```
+### 1. Prerequisites
+- Python 3.10+ installed
+- MongoDB installed and running locally (`mongodb://127.0.0.1:27017`) or a MongoDB Atlas connection string.
 
-Deletes a selected record using its MongoDB record ID.
-
-Example response:
-
-```json
-{
-    "status": "success",
-    "message": "Record deleted successfully."
-}
-```
-
----
-
-# Data Redundancy Detection Workflow
-
-## Unique Record
-
-When a new record is submitted:
-
-```text
-Input Record
-     ↓
-Pydantic Validation
-     ↓
-Database Check
-     ↓
-No Duplicate Found
-     ↓
-Record Verified
-     ↓
-Stored in MongoDB Atlas
-```
-
-## Duplicate Record
-
-When an existing record is submitted again:
-
-```text
-Input Record
-     ↓
-Pydantic Validation
-     ↓
-Database Check
-     ↓
-Duplicate Found
-     ↓
-Record Rejected
-     ↓
-Duplicate Attempt Logged
-```
-
----
-
-# Database Design
-
-CloudDataGuard uses MongoDB Atlas as its cloud database.
-
-## Database
-
-```text
-cloud_data_guard
-```
-
-## Collection 1: records
-
-Stores unique and verified records.
-
-Important fields include:
-
-```text
-_id
-name
-email
-phone
-category
-data
-status
-created_at
-```
-
-## Collection 2: duplicate_logs
-
-Stores detected duplicate attempts.
-
-Important fields include:
-
-```text
-_id
-email
-phone
-duplicate_fields
-detected_at
-```
-
-## Database Indexing
-
-Unique indexes are created for:
-
-```text
-email
-phone
-```
-
-These indexes provide an additional database-level mechanism for preventing duplicate records.
-
----
-
-# Installation
-
-## Prerequisites
-
-Make sure the following are installed:
-
-- Python 3.x
-- MongoDB Atlas account
-- Git
-- Web browser
-- Visual Studio Code (recommended)
-
----
-
-## 1. Clone the Repository
-
-```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd CloudDataGuard
-```
-
----
-
-## 2. Create a Virtual Environment
-
-On Windows:
-
+### 2. Verify MongoDB Service is Running (Windows PowerShell)
 ```powershell
-python -m venv venv
+Get-Service -Name "MongoDB"
 ```
+*If stopped, start it via `Start-Service -Name "MongoDB"`.*
 
----
-
-## 3. Activate the Virtual Environment
-
+### 3. Install Dependencies
 ```powershell
-venv\Scripts\activate
+cd d:\codealpa\CloudDataGuard
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
----
-
-## 4. Install Dependencies
-
-```powershell
-pip install -r requirements.txt
-```
-
----
-
-## 5. Configure MongoDB Atlas
-
-Create a MongoDB Atlas cluster and database user.
-
-Create a `.env` file in the project root:
-
+### 4. Configuration (`.env`)
+The `.env` file at the root contains the database configuration:
 ```env
-MONGODB_URI=your_mongodb_atlas_connection_string
+MONGODB_URI=mongodb://127.0.0.1:27017
 DATABASE_NAME=cloud_data_guard
 ```
 
-Replace the placeholder with your own MongoDB Atlas connection string.
-
-**Never upload the actual `.env` file to GitHub.**
-
----
-
-# Running the Backend
-
-From the project root:
-
+### 5. Start the Application
+Run the FastAPI development server:
 ```powershell
-python -m uvicorn backend.app.main:app --reload
+cd d:\codealpa\CloudDataGuard
+.\venv\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-The API will be available at:
+- **Frontend Dashboard:** [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html)
+- **Interactive Swagger API Documentation:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
+---
+
+## 🧪 Running Automated Tests
+
+A comprehensive test suite of 13 automated tests is included in `tests/test_crud_and_nosql.py`.
+
+Run the test suite using `pytest`:
+```powershell
+cd d:\codealpa\CloudDataGuard
+.\venv\Scripts\pytest.exe -v tests/test_crud_and_nosql.py
+```
+
+### Verified Test Suite Results:
 ```text
-http://127.0.0.1:8000
-```
-
-FastAPI Swagger documentation:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
----
-
-# Running the Frontend
-
-The frontend files are located in:
-
-```text
-frontend/
-```
-
-The frontend can be served using a local web server such as **VS Code Live Server**.
-
-Example:
-
-```text
-http://127.0.0.1:5500/CloudDataGuard/frontend/index.html
-```
-
-The frontend communicates with the FastAPI backend running on:
-
-```text
-http://127.0.0.1:8000
+tests/test_crud_and_nosql.py::test_1_database_connection PASSED          [  7%]
+tests/test_crud_and_nosql.py::test_2_create_record_with_sha256_hash PASSED [ 15%]
+tests/test_crud_and_nosql.py::test_3_read_all_records PASSED             [ 23%]
+tests/test_crud_and_nosql.py::test_4_read_single_record PASSED           [ 30%]
+tests/test_crud_and_nosql.py::test_5_update_record PASSED                [ 38%]
+tests/test_crud_and_nosql.py::test_6_duplicate_detection_by_email PASSED [ 46%]
+tests/test_crud_and_nosql.py::test_7_duplicate_detection_by_content_hash PASSED [ 53%]
+tests/test_crud_and_nosql.py::test_8_validation_errors PASSED            [ 61%]
+tests/test_crud_and_nosql.py::test_9_invalid_and_nonexistent_ids PASSED  [ 69%]
+tests/test_crud_and_nosql.py::test_10_aggregation_framework PASSED       [ 76%]
+tests/test_crud_and_nosql.py::test_11_indexes_inspection PASSED          [ 84%]
+tests/test_crud_and_nosql.py::test_12_query_explain_plan PASSED          [ 92%]
+tests/test_crud_and_nosql.py::test_13_delete_record PASSED               [100%]
+============================== 13 passed in 1.72s ==============================
 ```
 
 ---
 
-# Testing
-
-CloudDataGuard was tested using the following workflow.
-
-## Test 1 — MongoDB Connection
-
-The database status endpoint successfully returned:
-
-```json
-{
-    "database": "MongoDB",
-    "status": "connected"
-}
-```
-
-This confirms successful communication between the FastAPI application and MongoDB Atlas.
-
----
-
-## Test 2 — Unique Record
-
-A new record was submitted through the API.
-
-The system validated the input and successfully stored the unique record.
-
-Result:
-
-```text
-Status: success
-```
-
----
-
-## Test 3 — Duplicate Record
-
-The same record was submitted again.
-
-The system detected matching email and phone values.
-
-Result:
-
-```text
-Status: rejected
-```
-
-The duplicate attempt was also logged.
-
----
-
-## Test 4 — Statistics
-
-The statistics endpoint successfully reported:
-
-```text
-Total records
-Verified records
-Duplicate attempts
-```
-
----
-
-## Test 5 — Record Retrieval
-
-The stored records were successfully retrieved through:
-
-```text
-GET /records/
-```
-
-The records were also displayed in the frontend dashboard.
-
----
-
-## Test 6 — Record Deletion
-
-A stored record was successfully deleted using:
-
-```text
-DELETE /records/{record_id}
-```
-
----
-
-## Test 7 — Frontend Integration
-
-The web dashboard successfully communicated with the FastAPI backend.
-
-The frontend displayed:
-
-- MongoDB connection status
-- Total records
-- Verified records
-- Duplicate count
-- Stored records
-- Add record functionality
-- Duplicate detection messages
-- Delete functionality
-
----
-
-# Security Considerations
-
-The application follows basic security practices:
-
-- MongoDB credentials are stored in environment variables.
-- `.env` is excluded using `.gitignore`.
-- User input is validated before database insertion.
-- Email and phone fields use unique MongoDB indexes.
-- Frontend values are escaped before being displayed in the records table.
-- Database credentials are not hard-coded in the application source code.
-
----
-
-# Error Handling
-
-The application handles several common errors, including:
-
-- Invalid input data
-- Invalid email addresses
-- Invalid phone numbers
-- Duplicate records
-- Invalid MongoDB record IDs
-- Missing records
-- Database connection failures
-- API connection failures
-
----
-
-# Future Enhancements
-
-Possible future improvements include:
-
-- User authentication
-- Role-based access control
-- Advanced duplicate detection
-- Fuzzy matching for similar records
-- CSV/Excel bulk upload
-- Data quality scoring
-- Advanced analytics
-- Audit reports
-- Automated data-cleaning workflows
-- Cloud deployment
-
----
-
-# Internship Task
-
-This project was developed for the:
-
-**CodeAlpha Cloud Computing Internship**
-
-## Completed Task
-
-**Task 1 — Data Redundancy Removal System**
-
-The implementation demonstrates:
-
-- Redundant data identification
-- Data validation
-- Duplicate detection
-- Duplicate prevention
-- Duplicate logging
-- Unique record storage
-- Cloud database integration
-- Data retrieval
-- Record deletion
-- Statistics
-- Web-based dashboard
-
----
-
-# Project Demonstration
-
-The project demonstration covers:
-
-1. Starting the FastAPI backend
-2. Connecting to MongoDB Atlas
-3. Opening Swagger API documentation
-4. Checking database connectivity
-5. Adding a unique record
-6. Submitting the same record again
-7. Demonstrating duplicate detection
-8. Viewing statistics
-9. Viewing stored records
-10. Deleting a record
-11. Using the frontend dashboard
-
----
-
-# Screenshots
-
-Add project screenshots here after taking them.
-
-Recommended screenshots:
-
-```text
-1. MongoDB Atlas Cluster
-2. FastAPI Swagger Documentation
-3. Database Connected Response
-4. Unique Record Successfully Added
-5. Duplicate Record Rejected
-6. Statistics Response
-7. Stored Records
-8. CloudDataGuard Frontend Dashboard
-9. Frontend Duplicate Detection
-10. GitHub Repository
-```
-
-Example:
-
-```markdown
-![CloudDataGuard Dashboard](screenshots/dashboard.png)
-```
-
----
-
-# Author
-
-**Malla Balaraju**
-
-CloudDataGuard  
-CodeAlpha Cloud Computing Internship
-
----
-
-# License
-
-This project was developed for educational and internship purposes.
+## 🎓 Step-by-Step Viva Demonstration Script
+
+When presenting CloudDataGuard to the examiner for **Intelligent NoSQL Databases**:
+
+1. **Demonstrate System Architecture & MongoDB Connection:**
+   - Open [http://127.0.0.1:8000/frontend/index.html](http://127.0.0.1:8000/frontend/index.html).
+   - Point out the **"● MongoDB Connected"** status badge in the header.
+   - Explain the 6 metric cards computed directly via MongoDB's aggregation engine.
+
+2. **Demonstrate CREATE Operation:**
+   - Click **"📝 Fill Sample Demo Data"** and click **"✔ Submit & Verify Record"**.
+   - Show the success toast displaying the generated **SHA-256 cryptographic hash** and document size in bytes.
+   - Show the newly created row appearing dynamically in the stored records table.
+
+3. **Demonstrate Cryptographic Redundancy Removal (Duplicate Prevention):**
+   - Attempt to submit a new record with the exact same data text payload (or same email).
+   - Show the rejection toast: *"Redundant data detected: Identical content hash already stored"*.
+   - Point to the **Duplicates Blocked** and **Cloud Storage Saved** metric counters updating.
+   - Open the **"Redundancy Audit Logs"** tab to show the audit trail recorded in the `duplicate_logs` collection.
+
+4. **Demonstrate READ (All & By ID):**
+   - Click the **"View"** button on any record row.
+   - In the modal, explain the BSON types: `_id` (`ObjectId`), `content_hash` (`String`), `size_bytes` (`Int64`), `created_at` (`ISODate`), and embedded `metadata` subdocument.
+
+5. **Demonstrate UPDATE Operation:**
+   - Click the **"Edit"** button on any row.
+   - Change the category or content text and save changes.
+   - Explain that the backend recalculates the SHA-256 checksum and sets `updated_at`.
+
+6. **Demonstrate DELETE Operation:**
+   - Click the **"Delete"** button on a row.
+   - Confirm in the modal; show the document being permanently deleted from MongoDB and the table refreshing.
+
+7. **Demonstrate MongoDB Indexing & `explain()` Plan:**
+   - Scroll to the **"🎓 NoSQL Demonstration & Evaluation Tools"** section.
+   - Click **"⚡ MongoDB Indexes"**: show the unique constraints on `email`, `phone`, and `content_hash`.
+   - Click **"🔍 Query explain() Plan"**:
+     - Select `email` and click **"Run explain()"** $\rightarrow$ Show **`STAGE: IXSCAN`** (Index Scan in 0 ms).
+     - Select `name` and click **"Run explain()"** $\rightarrow$ Show **`STAGE: COLLSCAN`** (Full Collection Scan).
+     - Explain why indexing is crucial for NoSQL performance.
+
+8. **Demonstrate Aggregation Pipelines:**
+   - Click **"📊 Aggregation Analytics"**:
+   - Show the `$group` by category pipeline computing document count, total bytes, and average document size.

@@ -3,283 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>CloudDataGuard</title>
-
+    <title>CloudDataGuard — Intelligent NoSQL Data Redundancy Removal System</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <!-- Header -->
+    <!-- ── Header ── -->
     <header class="header">
-        <div>
-            <h1>CloudDataGuard</h1>
-            <p>Cloud-Based Data Redundancy Removal System</p>
-        </div>
-
-        <div id="databaseStatus" class="status disconnected">
-            Checking database...
+        <div class="header-content">
+            <div class="brand">
+                <span class="brand-icon">☁</span>
+                <div>
+                    <h1>CloudDataGuard</h1>
+                    <p class="subtitle">MongoDB-Based Data Redundancy Removal System &bull; <strong>Intelligent NoSQL Architecture</strong></p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div id="databaseStatus" class="status disconnected">Checking database…</div>
+                <a href="/docs" target="_blank" class="api-docs-link" title="Open Swagger API Documentation">📖 Swagger API Docs</a>
+            </div>
         </div>
     </header>
 
-
-    <!-- Main Container -->
+    <!-- ── Main Container ── -->
     <main class="container">
 
-        <!-- Statistics -->
+        <!-- ── Top Metrics Dashboard (Driven by MongoDB Aggregation) ── -->
         <section class="stats-grid">
-
             <div class="stat-card">
-                <h3>Total Records</h3>
-                <p id="totalRecords">0</p>
+                <div class="stat-icon">📁</div>
+                <div>
+                    <h3>Total Stored Records</h3>
+                    <p id="totalRecords" class="stat-value">—</p>
+                    <span class="stat-sub">MongoDB records collection</span>
+                </div>
             </div>
-
-            <div class="stat-card">
-                <h3>Verified Records</h3>
-                <p id="verifiedRecords">0</p>
+            <div class="stat-card verified">
+                <div class="stat-icon">✔</div>
+                <div>
+                    <h3>Verified Unique</h3>
+                    <p id="verifiedRecords" class="stat-value">—</p>
+                    <span class="stat-sub">Validated &amp; verified</span>
+                </div>
             </div>
-
-            <div class="stat-card">
-                <h3>Duplicates Detected</h3>
-                <p id="duplicateRecords">0</p>
+            <div class="stat-card duplicate">
+                <div class="stat-icon">🛡</div>
+                <div>
+                    <h3>Duplicates Blocked</h3>
+                    <p id="duplicateRecords" class="stat-value">—</p>
+                    <span class="stat-sub">Redundancy intercepted</span>
+                </div>
             </div>
-
+            <div class="stat-card storage">
+                <div class="stat-icon">💾</div>
+                <div>
+                    <h3>Active Stored Data</h3>
+                    <p id="storedDataSize" class="stat-value">—</p>
+                    <span class="stat-sub" id="storedDataSub">Bytes stored in MongoDB</span>
+                </div>
+            </div>
+            <div class="stat-card savings">
+                <div class="stat-icon">⚡</div>
+                <div>
+                    <h3>Cloud Storage Saved</h3>
+                    <p id="savedDataSize" class="stat-value">—</p>
+                    <span class="stat-sub" id="savedDataSub">Prevented redundant payload</span>
+                </div>
+            </div>
+            <div class="stat-card efficiency">
+                <div class="stat-icon">📊</div>
+                <div>
+                    <h3>Deduplication Ratio</h3>
+                    <p id="dedupRatio" class="stat-value">—</p>
+                    <span class="stat-sub">Redundancy removal rate</span>
+                </div>
+            </div>
         </section>
 
-
-        <!-- Add Record -->
+        <!-- ── CREATE OPERATION: Add New Record ── -->
         <section class="card">
-
             <div class="section-header">
                 <div>
-                    <h2>Add New Record</h2>
-                    <p>Submit data for validation and redundancy checking.</p>
+                    <h2>➕ Create Record — Add &amp; Verify Data</h2>
+                    <p>Submits record to MongoDB with automatic <strong>SHA-256 cryptographic content hashing</strong> and multi-field redundancy detection.</p>
                 </div>
             </div>
 
-            <form id="recordForm">
-
+            <form id="recordForm" novalidate>
                 <div class="form-grid">
-
                     <div class="form-group">
-                        <label for="name">Name</label>
-                        <input
-                            type="text"
-                            id="name"
-                            placeholder="Enter name"
-                            required
-                        >
+                        <label for="name">Full Name <span class="req">*</span></label>
+                        <input type="text" id="name" placeholder="e.g. John Doe" required minlength="2" maxlength="100">
                     </div>
 
-
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            placeholder="Enter email"
-                            required
-                        >
+                        <label for="email">Email Address <span class="req">* (Unique)</span></label>
+                        <input type="email" id="email" placeholder="e.g. john.doe@example.com" required>
                     </div>
 
-
                     <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input
-                            type="text"
-                            id="phone"
-                            placeholder="Enter phone number"
-                            minlength="10"
-                            maxlength="15"
-                            required
-                        >
+                        <label for="phone">Phone Number <span class="req">* (Unique)</span></label>
+                        <input type="text" id="phone" placeholder="e.g. +1234567890" required minlength="10" maxlength="15">
                     </div>
 
-
                     <div class="form-group">
-                        <label for="category">Category</label>
-                        <input
-                            type="text"
-                            id="category"
-                            placeholder="Example: Student"
-                            required
-                        >
+                        <label for="category">Category <span class="req">*</span></label>
+                        <input type="text" id="category" placeholder="e.g. Student, Research, Finance" required minlength="2" maxlength="50">
                     </div>
-
 
                     <div class="form-group full-width">
-                        <label for="data">Data</label>
-                        <textarea
-                            id="data"
-                            placeholder="Enter the data to be stored..."
-                            required
-                        ></textarea>
+                        <label for="data">Data Content / Payload <span class="req">* (Hashed via SHA-256)</span></label>
+                        <textarea id="data" placeholder="Enter text or file payload to be stored. Identical content is automatically detected and deduplicated." required></textarea>
                     </div>
-
                 </div>
 
-
-                <button type="submit" class="primary-btn">
-                    Add &amp; Verify Record
-                </button>
-
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn" id="addSubmitBtn">
+                        ✔ Submit &amp; Verify Record (Create)
+                    </button>
+                    <button type="button" class="secondary-btn" onclick="fillSampleData()">
+                        📝 Fill Sample Demo Data
+                    </button>
+                </div>
             </form>
-
-
-            <div id="message" class="message"></div>
-
         </section>
 
-
-        <!-- Records -->
+        <!-- ── READ ALL OPERATION: Records Table with Search & Filter ── -->
         <section class="card">
-
             <div class="section-header">
-
                 <div>
-                    <h2>Stored Records</h2>
-                    <p>Verified records currently stored in MongoDB Atlas.</p>
+                    <h2>📋 Read Stored Records</h2>
+                    <p>Unique documents stored in the MongoDB <code>records</code> collection with BSON types and SHA-256 checksums.</p>
                 </div>
-
-                <button
-                    id="refreshButton"
-                    class="secondary-btn"
-                    onclick="loadDashboard()"
-                >
-                    Refresh
-                </button>
-
+                <div class="header-actions">
+                    <button class="secondary-btn" onclick="loadDashboard()">↻ Refresh List</button>
+                </div>
             </div>
 
+            <!-- Search & Filter Controls -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Search by name, email, phone, category, or SHA-256 hash…">
+                <input type="text" id="filterCategory" placeholder="Filter category…">
+                <button class="primary-btn-sm" onclick="applySearch()">Search</button>
+                <button class="secondary-btn-sm" onclick="clearSearch()">Clear</button>
+            </div>
 
+            <!-- Records Table -->
             <div class="table-wrapper">
-
                 <table>
-
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Category</th>
-                            <th>Data</th>
+                            <th>Content Preview</th>
+                            <th>SHA-256 Hash</th>
+                            <th>Size</th>
                             <th>Status</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-
                     <tbody id="recordsTableBody">
-
-                        <tr>
-                            <td colspan="8" class="empty">
-                                Loading records...
-                            </td>
-                        </tr>
-
+                        <tr><td colspan="11" class="empty">Loading records from MongoDB…</td></tr>
                     </tbody>
-
                 </table>
-
             </div>
 
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </section>
+
+        <!-- ── ACADEMIC EVALUATION & VIVA TOOLS SECTION ── -->
+        <section class="card viva-card">
+            <div class="section-header">
+                <div>
+                    <h2>🎓 NoSQL Demonstration &amp; Evaluation Tools</h2>
+                    <p>Live tools to demonstrate MongoDB concepts: <strong>Aggregation Pipelines</strong>, <strong>Index Inspection</strong>, and <strong>Query Execution Plan (explain())</strong>.</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('tabAggregation')">📊 Aggregation Analytics</button>
+                <button class="tab-btn" onclick="switchTab('tabIndexes')">⚡ MongoDB Indexes</button>
+                <button class="tab-btn" onclick="switchTab('tabExplain')">🔍 Query explain() Plan</button>
+                <button class="tab-btn" onclick="switchTab('tabDuplicates')">🛡 Redundancy Audit Logs</button>
+            </div>
+
+            <!-- Tab 1: Aggregation Analytics -->
+            <div id="tabAggregation" class="tab-pane active">
+                <div class="tab-header">
+                    <h3>MongoDB Aggregation Pipeline: <code>$group</code>, <code>$sum</code>, <code>$avg</code>, <code>$sort</code></h3>
+                    <p>Categorical breakdown and storage volume computed directly via the database aggregation engine.</p>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Total Documents ($sum)</th>
+                                <th>Total Stored Bytes ($sum)</th>
+                                <th>Average Size ($avg)</th>
+                                <th>Latest Record ($max)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody">
+                            <tr><td colspan="5" class="empty">Loading aggregation stats…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Indexes Explorer -->
+            <div id="tabIndexes" class="tab-pane">
+                <div class="tab-header">
+                    <h3>Active MongoDB Indexes</h3>
+                    <p>Demonstrates B-Tree indexing on primary key, unique constraints, and search optimization fields.</p>
+                </div>
+                <div id="indexesContent" class="indexes-grid">
+                    <p class="empty">Loading indexes…</p>
+                </div>
+            </div>
+
+            <!-- Tab 3: Query Explain Plan Runner -->
+            <div id="tabExplain" class="tab-pane">
+                <div class="tab-header">
+                    <h3>MongoDB Query Execution Plan: <code>explain('executionStats')</code></h3>
+                    <p>Compare performance between an <strong>Indexed Scan (IXSCAN)</strong> and a <strong>Full Collection Scan (COLLSCAN)</strong> in real time.</p>
+                </div>
+                <div class="explain-form">
+                    <div class="explain-input-group">
+                        <label for="explainField">Field to Query:</label>
+                        <select id="explainField" onchange="suggestExplainValue()">
+                            <option value="email">email (Indexed - Unique)</option>
+                            <option value="phone">phone (Indexed - Unique)</option>
+                            <option value="content_hash">content_hash (Indexed - Unique SHA-256)</option>
+                            <option value="category">category (Indexed)</option>
+                            <option value="name">name (Non-Indexed &rarr; COLLSCAN)</option>
+                        </select>
+                    </div>
+                    <div class="explain-input-group flex-1">
+                        <label for="explainValue">Value to Match:</label>
+                        <input type="text" id="explainValue" placeholder="Enter value to search…">
+                    </div>
+                    <button class="primary-btn explain-btn" onclick="runExplain()">Run explain()</button>
+                </div>
+
+                <div id="explainResult" class="explain-result-card" style="display:none;">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+
+            <!-- Tab 4: Redundancy Audit Logs -->
+            <div id="tabDuplicates" class="tab-pane">
+                <div class="tab-header">
+                    <h3>Redundancy Removal History (<code>duplicate_logs</code> collection)</h3>
+                    <p>Audit trail of all duplicate attempts intercepted and prevented from consuming cloud storage.</p>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Detected Email</th>
+                                <th>Detected Phone</th>
+                                <th>SHA-256 Hash</th>
+                                <th>Duplicate Trigger Fields</th>
+                                <th>Bytes Saved</th>
+                                <th>Detected At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="duplicateLogsBody">
+                            <tr><td colspan="7" class="empty">Loading duplicate logs…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
 
     </main>
 
-
-    <!-- Edit Record Modal -->
-    <div id="editModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
-
+    <!-- ══════════════════════════════════
+         READ ONE: VIEW RECORD MODAL
+    ══════════════════════════════════ -->
+    <div id="viewModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="viewModalTitle">
         <div class="modal">
-
             <div class="modal-header">
-                <h2 id="editModalTitle">Edit Record</h2>
+                <h2 id="viewModalTitle">📄 MongoDB Document Inspection (Read One)</h2>
+                <button class="modal-close-btn" onclick="closeViewModal()" aria-label="Close">&times;</button>
+            </div>
+            <div id="viewModalBody" class="view-body"></div>
+            <div class="modal-actions">
+                <button class="secondary-btn" onclick="closeViewModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         UPDATE OPERATION: EDIT MODAL
+    ══════════════════════════════════ -->
+    <div id="editModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="editModalTitle">✏️ Update Record (Update)</h2>
                 <button class="modal-close-btn" onclick="closeEditModal()" aria-label="Close">&times;</button>
             </div>
 
-            <form id="editForm">
-
+            <form id="editForm" novalidate>
                 <input type="hidden" id="editRecordId">
 
                 <div class="form-grid">
-
                     <div class="form-group">
-                        <label for="editName">Name</label>
-                        <input
-                            type="text"
-                            id="editName"
-                            placeholder="Enter name"
-                            required
-                        >
+                        <label for="editName">Full Name</label>
+                        <input type="text" id="editName" placeholder="Enter full name" required minlength="2" maxlength="100">
                     </div>
 
                     <div class="form-group">
-                        <label for="editEmail">Email</label>
-                        <input
-                            type="email"
-                            id="editEmail"
-                            placeholder="Enter email"
-                            required
-                        >
+                        <label for="editEmail">Email Address</label>
+                        <input type="email" id="editEmail" placeholder="Enter email address" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="editPhone">Phone</label>
-                        <input
-                            type="text"
-                            id="editPhone"
-                            placeholder="Enter phone number"
-                            minlength="10"
-                            maxlength="15"
-                            required
-                        >
+                        <label for="editPhone">Phone Number</label>
+                        <input type="text" id="editPhone" placeholder="Enter phone number" required minlength="10" maxlength="15">
                     </div>
 
                     <div class="form-group">
                         <label for="editCategory">Category</label>
-                        <input
-                            type="text"
-                            id="editCategory"
-                            placeholder="Example: Student"
-                            required
-                        >
+                        <input type="text" id="editCategory" placeholder="e.g. Student, Employee" required minlength="2" maxlength="50">
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="editData">Data</label>
-                        <textarea
-                            id="editData"
-                            placeholder="Enter the data to be stored..."
-                            required
-                        ></textarea>
+                        <label for="editData">Data Content (Will recalculate SHA-256 hash &amp; size)</label>
+                        <textarea id="editData" placeholder="Enter data content…" required></textarea>
                     </div>
-
                 </div>
 
-                <div id="editMessage" class="message"></div>
+                <div id="editMessage" class="inline-message"></div>
 
                 <div class="modal-actions">
                     <button type="button" class="secondary-btn" onclick="closeEditModal()">Cancel</button>
-                    <button type="submit" class="primary-btn" id="editSubmitBtn">Save Changes</button>
+                    <button type="submit" class="primary-btn" id="editSubmitBtn">💾 Save Changes (Update)</button>
                 </div>
-
             </form>
-
         </div>
-
     </div>
 
+    <!-- ══════════════════════════════════
+         DELETE OPERATION: CONFIRM MODAL
+    ══════════════════════════════════ -->
+    <div id="deleteModal" class="modal-overlay" role="dialog" aria-modal="true">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h2>🗑 Confirm Delete (Delete)</h2>
+                <button class="modal-close-btn" onclick="closeDeleteModal()" aria-label="Close">&times;</button>
+            </div>
+            <p style="color:#475569;margin-bottom:8px;">Are you sure you want to permanently delete this document from MongoDB?</p>
+            <p style="color:#b91c1c;font-size:13px;font-weight:600;">Document deletion cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="secondary-btn" onclick="closeDeleteModal()">Cancel</button>
+                <button class="danger-btn" id="confirmDeleteBtn" onclick="confirmDelete()">Permanently Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <!-- Footer -->
     <footer>
-        <p>CloudDataGuard &copy; 2026</p>
-        <p>FastAPI &bull; MongoDB Atlas &bull; HTML &bull; CSS &bull; JavaScript</p>
+        <p><strong>CloudDataGuard</strong> &bull; Cloud-Based Data Redundancy Removal System</p>
+        <p>FastAPI &bull; MongoDB &bull; BSON Document Model &bull; SHA-256 Checksums</p>
     </footer>
 
-
     <script src="script.js"></script>
-
 </body>
 </html>
